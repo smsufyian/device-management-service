@@ -14,7 +14,8 @@ public class TestcontainersConfiguration {
     @Bean
     @ServiceConnection
     PostgreSQLContainer postgresContainer() {
-        return new PostgreSQLContainer(DockerImageName.parse("postgres:latest"));
+        // Use a fixed, production-parity image tag
+        return new PostgreSQLContainer(DockerImageName.parse("postgres:15.15-alpine3.22"));
     }
 
 }

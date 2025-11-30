@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.springBoot)
     alias(libs.plugins.springDependencyManagement)
     alias(libs.plugins.jib)
+    //TODO: Fix the incompatibility issue with java21
     //alias(libs.plugins.spotless)
     alias(libs.plugins.owaspDependencyCheck)
 }
@@ -105,11 +106,9 @@ jib {
 fun findDocker(): File {
     val envPath = System.getenv("DOCKER_EXECUTABLE")?.takeIf { it.isNotBlank() }?.let { File(it) }
     val commonPaths = listOf(
-        "/usr/local/bin/docker",                                           // Intel Mac
-        "/opt/homebrew/bin/docker",                                        // Apple Silicon Mac
-        "/usr/bin/docker",                                                 // Linux
-        "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",  // Windows
-        "C:\\Program Files\\Docker\\resources\\bin\\docker.exe"            // Windows Alt
+        "/usr/local/bin/docker",
+        "/opt/homebrew/bin/docker",
+        "/usr/bin/docker"
     )
 
     val found = sequence {
@@ -130,8 +129,9 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.flyway.database.postgresql)
-    testImplementation(libs.spring.boot.starter.test)
     developmentOnly(libs.spring.boot.docker.compose)
+    developmentOnly(libs.spring.boot.dev.tools)
+    testImplementation(libs.spring.boot.starter.test)
     testImplementation(libs.spring.boot.testcontainers)
     testImplementation(libs.testcontainers.junit.jupiter)
     testImplementation(libs.testcontainers.postgresql)
@@ -140,14 +140,6 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-    val isCI = System.getenv("CI") == "true"
-    onlyIf { isCI }
-    if (isCI) {
-        systemProperty("testcontainers.enabled", "true")
-    }
-}
 
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
@@ -177,11 +169,16 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification").config
         rule {
             limit {
                 counter = "INSTRUCTION"
-                value = "COVEREDRATIO"
+                value = "COVERED RATIO"
                 minimum = BigDecimal("0.80")
             }
         }
     }
+}
+
+tasks.test {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 tasks.check {
