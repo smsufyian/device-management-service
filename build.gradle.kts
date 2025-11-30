@@ -123,12 +123,14 @@ fun findDocker(): File {
 }
 
 dependencies {
+    annotationProcessor(libs.mapstruct.processor)
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.flyway)
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.spring.boot.starter.webmvc.openapiui)
+    implementation(libs.mapstruct)
     implementation(libs.flyway.database.postgresql)
     developmentOnly(libs.spring.boot.docker.compose)
     developmentOnly(libs.spring.boot.dev.tools)
@@ -136,6 +138,7 @@ dependencies {
     testImplementation(libs.spring.boot.testcontainers)
     testImplementation(libs.testcontainers.junit.jupiter)
     testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.restassured)
     testImplementation(libs.archunit)
     runtimeOnly(libs.postgresql)
     testRuntimeOnly(libs.junit.platform.launcher)

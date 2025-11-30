@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS devices (                                    device_i
     state          VARCHAR(20) NOT NULL,
     created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 
-CONSTRAINT chk_state CHECK (state IN ('available', 'in-use', 'inactive'))
+CONSTRAINT chk_state CHECK (state IN ('AVAILABLE', 'IN_USE', 'INACTIVE'))
 
 );
 

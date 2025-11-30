@@ -9,6 +9,7 @@ checkstyle = "10.13.0"
 pmd = "7.0.0"
 owaspDependencyCheck = "9.0.9"
 openapiui = "3.0.0"
+restassured = "5.5.6"
 
 [libraries]
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
@@ -25,12 +26,16 @@ spring-boot-dev-tools = { module = "org.springframework.boot:spring-boot-devtool
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
 postgresql = { module = "org.postgresql:postgresql" }
 
+# MapStruct for Java bean mapping
+mapstruct = { module = "org.mapstruct:mapstruct", version = "1.5.5.Final" }
+mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version = "1.5.5.Final" }
+
 # Testing - Spring Boot managed versions
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
-
+restassured = {module = "io.rest-assured:rest-assured", version.ref = "restassured"}
 # Other explicit versions
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 
