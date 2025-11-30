@@ -9,7 +9,7 @@ checkstyle = "10.13.0"
 pmd = "7.0.0"
 owaspDependencyCheck = "9.0.9"
 openapiui = "3.0.0"
-restassured = "5.5.6"
+restassured = "5.4.0"
 
 [libraries]
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
@@ -36,7 +36,6 @@ spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-te
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
 restassured = {module = "io.rest-assured:rest-assured", version.ref = "restassured"}
-# Other explicit versions
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 
 [plugins]

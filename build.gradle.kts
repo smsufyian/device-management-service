@@ -186,6 +186,11 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification").config
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs(
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        "--add-opens=java.base/java.util=ALL-UNNAMED",
+        "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
+    )
     finalizedBy(tasks.jacocoTestReport)
 }
 
