@@ -6,6 +6,7 @@ import com.devices.service.DeviceService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,11 @@ public class DeviceController {
     @PostMapping
     public ResponseEntity<DeviceResponse> create(@Valid @RequestBody DeviceCreateRequest request) {
         DeviceResponse response = deviceService.create(request);
-        URI location = URI.create("/api/v1/devices/" + response.id());
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
         return ResponseEntity.created(location).body(response);
     }
 }
