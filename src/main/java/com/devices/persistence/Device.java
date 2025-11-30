@@ -2,6 +2,8 @@ package com.devices.persistence;
 
 import com.devices.model.DeviceState;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -25,6 +27,7 @@ public class Device {
     private DeviceState state;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "timestamptz")
+    @CreationTimestamp
     private OffsetDateTime createdAt;
 
     public UUID getId() { return id; }

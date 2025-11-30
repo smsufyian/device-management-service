@@ -1,7 +1,7 @@
 package com.devices.api.mapper;
 
-import com.devices.api.dto.DeviceCreateRequest;
-import com.devices.api.dto.DeviceResponse;
+import com.devices.api.dto.CreateDeviceRequest;
+import com.devices.api.dto.CreateDeviceResponse;
 import com.devices.persistence.Device;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -9,10 +9,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface DeviceMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "state", ignore = true)
+    @Mapping(target = "state", constant = "AVAILABLE")
     @Mapping(target = "createdAt", ignore = true)
-    Device toEntity(DeviceCreateRequest request);
+    Device toEntity(CreateDeviceRequest request);
 
     @Mapping(source = "createdAt", target = "creationTime")
-    DeviceResponse toResponse(Device device);
+    CreateDeviceResponse toResponse(Device device);
 }

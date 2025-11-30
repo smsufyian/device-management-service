@@ -3,7 +3,7 @@ package com.devices.api.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record DeviceCreateRequest(
+public record CreateDeviceRequest(
         @NotBlank(message = "Device name must not be blank")
         @Size(max = 100, message = "Device name must not exceed 100 characters")
         String name,

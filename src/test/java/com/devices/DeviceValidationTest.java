@@ -2,7 +2,7 @@ package com.devices;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.devices.api.dto.DeviceCreateRequest;
+import com.devices.api.dto.CreateDeviceRequest;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
@@ -28,7 +28,7 @@ class DeviceValidationTest {
 
     @Test
     void validRequestPassesValidation() {
-        DeviceCreateRequest req = new DeviceCreateRequest("Watch", "Acme");
+        CreateDeviceRequest req = new CreateDeviceRequest("Watch", "Acme");
 
         assertThat(validator.validate(req)).isEmpty();
     }

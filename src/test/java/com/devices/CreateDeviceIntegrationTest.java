@@ -1,6 +1,6 @@
 package com.devices;
 
-import com.devices.api.dto.DeviceResponse;
+import com.devices.api.dto.CreateDeviceResponse;
 import com.devices.model.DeviceState;
 import com.devices.persistence.DeviceRepository;
 import io.restassured.http.ContentType;
@@ -25,7 +25,7 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        DeviceResponse response = given()
+        CreateDeviceResponse response = given()
                 .contentType(ContentType.JSON)
                 .body(payload)
                 .when()
@@ -40,7 +40,7 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
                 .body("state", equalTo("AVAILABLE"))
                 .body("creationTime", notNullValue())
                 .extract()
-                .as(DeviceResponse.class);
+                .as(CreateDeviceResponse.class);
 
 
         var saved = deviceRepository.findById(response.id()).orElseThrow();
