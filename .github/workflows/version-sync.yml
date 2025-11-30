@@ -1,0 +1,59 @@
+name: Version Consistency and Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Verify version sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Checking .env.versions exists"
+          test -f .env.versions
+
+          # Load env versions
+          set -a
+          source .env.versions
+          set +a
+
+          # Extract versions from libs.versions.toml
+          TOML=gradle/libs.versions.toml
+          get_toml_ver() { grep -E "^$1\s*=\s*\"[^"]+\"" "$TOML" | sed -E 's/^[^=]+=\s*"([^"]+)"/\1/'; }
+
+          L_JAVA=$(get_toml_ver java)
+          L_SPRING_BOOT=$(get_toml_ver springBoot)
+          L_SPRING_DM=$(get_toml_ver springDependencyManagement)
+          L_JIB=$(get_toml_ver jib)
+          L_ARCHUNIT=$(get_toml_ver archunit)
+
+          echo "Comparing env vs catalog"
+          [ "$JAVA_VERSION" = "$L_JAVA" ] || { echo "JAVA_VERSION mismatch: $JAVA_VERSION != $L_JAVA"; exit 1; }
+          [ "$SPRING_BOOT_VERSION" = "$L_SPRING_BOOT" ] || { echo "SPRING_BOOT_VERSION mismatch: $SPRING_BOOT_VERSION != $L_SPRING_BOOT"; exit 1; }
+          [ "$SPRING_DEPENDENCY_MANAGEMENT_VERSION" = "$L_SPRING_DM" ] || { echo "SPRING_DEPENDENCY_MANAGEMENT_VERSION mismatch: $SPRING_DEPENDENCY_MANAGEMENT_VERSION != $L_SPRING_DM"; exit 1; }
+          [ "$JIB_VERSION" = "$L_JIB" ] || { echo "JIB_VERSION mismatch: $JIB_VERSION != $L_JIB"; exit 1; }
+          [ "$ARCHUNIT_VERSION" = "$L_ARCHUNIT" ] || { echo "ARCHUNIT_VERSION mismatch: $ARCHUNIT_VERSION != $L_ARCHUNIT"; exit 1; }
+
+          echo "Check .sdkmanrc matches Java major"
+          SDK_JAVA=$(grep -E '^java=' .sdkmanrc | cut -d= -f2)
+          [[ "$SDK_JAVA" == ${JAVA_VERSION}* ]] || { echo ".sdkmanrc java ($SDK_JAVA) does not start with $JAVA_VERSION"; exit 1; }
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build
+        run: ./gradlew --no-daemon clean build
