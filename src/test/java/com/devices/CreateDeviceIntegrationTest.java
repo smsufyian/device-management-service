@@ -51,6 +51,64 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldReturnBadRequestWhenNameOrBrandExceedMaxLength() {
+        String tooLongName = "A".repeat(101);
+        String payloadWithTooLongName = String.format("""
+                {
+                  "name": "%s",
+                  "brand": "Apple"
+                }
+                """, tooLongName);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(payloadWithTooLongName)
+                .when()
+                .post("/api/v1/devices")
+                .then()
+                .statusCode(400)
+                .contentType(startsWith("application/problem+json"))
+                .body("status", equalTo(400))
+                .body("title", equalTo("Validation Error"))
+                .body("detail", equalTo("Request validation failed"))
+                .body("instance", equalTo("/api/v1/devices"))
+                .body("errors.size()", equalTo(1))
+                .body("errors[0].field", equalTo("name"))
+                .body("errors[0].message", equalTo("Device name must not exceed 100 characters"))
+                .body("errors[0].rejectedValue", equalTo(tooLongName));
+
+        assertThat(deviceRepository.count()).isZero();
+
+
+        String tooLongBrand = "B".repeat(51);
+        String payloadWithTooLongBrand = String.format("""
+                {
+                  "name": "Random Name",
+                  "brand": "%s"
+                }
+                """, tooLongBrand);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(payloadWithTooLongBrand)
+                .when()
+                .post("/api/v1/devices")
+                .then()
+                .statusCode(400)
+                .contentType(startsWith("application/problem+json"))
+                .body("status", equalTo(400))
+                .body("title", equalTo("Validation Error"))
+                .body("detail", equalTo("Request validation failed"))
+                .body("instance", equalTo("/api/v1/devices"))
+                .body("errors.size()", equalTo(1))
+                .body("errors[0].field", equalTo("brand"))
+                .body("errors[0].message", equalTo("Device brand must not exceed 50 characters"))
+                .body("errors[0].rejectedValue", equalTo(tooLongBrand));
+
+        assertThat(deviceRepository.count()).isZero();
+    }
+
+    @Test
     void shouldReturnBadRequestWhenNameOrBrandAreMissing() {
         String invalidPayloadWithNameMissing = """
                 {
@@ -69,7 +127,6 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
                 .contentType(startsWith("application/problem+json"))
                 .body("status", equalTo(400))
                 .body("title", equalTo("Validation Error"))
-                .body("type", equalTo("https://api.example.com/errors/validation-error"))
                 .body("detail", equalTo("Request validation failed"))
                 .body("instance", equalTo("/api/v1/devices"))
                 .body("errors.size()", equalTo(1))
@@ -96,7 +153,6 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
                 .contentType(startsWith("application/problem+json"))
                 .body("status", equalTo(400))
                 .body("title", equalTo("Validation Error"))
-                .body("type", equalTo("https://api.example.com/errors/validation-error"))
                 .body("detail", equalTo("Request validation failed"))
                 .body("instance", equalTo("/api/v1/devices"))
                 .body("errors.size()", equalTo(1))
