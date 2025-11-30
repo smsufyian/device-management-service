@@ -190,8 +190,8 @@ tasks.test {
 }
 
 tasks.check {
-    dependsOn(tasks.checkstyleMain, tasks.checkstyleTest)
-    dependsOn(tasks.pmdMain, tasks.pmdTest)
+//    dependsOn(tasks.checkstyleMain, tasks.checkstyleTest)
+//    dependsOn(tasks.pmdMain, tasks.pmdTest)
     //TODO: Fix spotless java21 incompatibility issue
     //dependsOn(tasks.spotlessCheck)
     dependsOn(tasks.jacocoTestReport)

@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
@@ -17,7 +17,7 @@ public abstract class AbstractIntegrationTest {
 
     @LocalServerPort
     protected int port;
-
+    
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -30,7 +30,6 @@ public abstract class AbstractIntegrationTest {
 
     @AfterEach
     void cleanUpDatabase() {
-        jdbcTemplate.execute("TRUNCATE TABLE devices CASCADE;");
+        jdbcTemplate.execute("TRUNCATE TABLE devices RESTART IDENTITY CASCADE;");
     }
-
 }

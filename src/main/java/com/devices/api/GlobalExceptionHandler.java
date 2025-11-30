@@ -1,5 +1,7 @@
 package com.devices.api;
 
+import com.devices.service.exception.DeviceNotFoundException;
+import com.devices.service.exception.InvalidDeviceStateException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.Map;
@@ -20,6 +22,8 @@ public class GlobalExceptionHandler {
 
     private static final String VALIDATION_PROBLEM_TYPE = "https://api.example.com/errors/validation-error";
     private static final String MALFORMED_JSON_PROBLEM_TYPE = "https://api.example.com/errors/malformed-json";
+    private static final String NOT_FOUND_PROBLEM_TYPE = "https://api.example.com/errors/device-not-found";
+    private static final String INVALID_STATE_PROBLEM_TYPE = "https://api.example.com/errors/invalid-device-state";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationExceptions(MethodArgumentNotValidException ex,
@@ -49,6 +53,26 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Malformed JSON request");
         problem.setTitle("Malformed Request");
         problem.setType(URI.create(MALFORMED_JSON_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        return ResponseEntity.badRequest().body(problem);
+    }
+
+    @ExceptionHandler(DeviceNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleDeviceNotFound(DeviceNotFoundException ex,
+                                                              HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problem.setTitle("Device Not Found");
+        problem.setType(URI.create(NOT_FOUND_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    @ExceptionHandler(InvalidDeviceStateException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidDeviceState(InvalidDeviceStateException ex,
+                                                                  HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("Invalid Device State");
+        problem.setType(URI.create(INVALID_STATE_PROBLEM_TYPE));
         problem.setInstance(URI.create(request.getRequestURI()));
         return ResponseEntity.badRequest().body(problem);
     }

@@ -1,15 +1,26 @@
 package com.devices.api.dto;
 
 import com.devices.model.DeviceState;
-import jakarta.annotation.Nonnull;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Schema(name = "CreateDeviceResponse", description = "Details of the device that was created")
 public record CreateDeviceResponse(
-        @Nonnull UUID id,
-        @Nonnull String name,
-        @Nonnull String brand,
-        @Nonnull DeviceState state,
-        @Nonnull OffsetDateTime creationTime
+        @Schema(description = "Unique identifier of the device", example = "550e8400-e29b-41d4-a716-446655440000", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull UUID id,
+
+        @Schema(description = "Device name", example = "Thermostat Living Room", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull String name,
+
+        @Schema(description = "Device brand", example = "Nest", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull String brand,
+
+        @Schema(description = "Current state of the device", example = "ACTIVE", allowableValues = {"ACTIVE", "INACTIVE"}, requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull DeviceState state,
+
+        @Schema(description = "ISO-8601 timestamp when the device was created", example = "2025-01-01T12:00:00Z", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull OffsetDateTime creationTime
 ) {}

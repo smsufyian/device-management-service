@@ -2,17 +2,16 @@ package com.devices.persistence;
 
 import com.devices.model.DeviceState;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.domain.Persistable;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "devices")
-public class Device {
+public class Device implements Persistable<UUID> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "device_id", nullable = false, updatable = false, columnDefinition = "uuid")
     private UUID id;
 
@@ -26,22 +25,53 @@ public class Device {
     @Column(name = "state", nullable = false, length = 20)
     private DeviceState state;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "timestamptz")
-    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false, columnDefinition = "timestamptz")
     private OffsetDateTime createdAt;
 
+    // Protected no-arg constructor required by JPA (Hibernate)
+    protected Device() {
+        // for JPA
+    }
+
+    // Constructor used by application code (createdAt is DB-generated)
+    public Device(UUID id, String name, String brand, DeviceState state) {
+        this.id = id;
+        this.name = name;
+        this.brand = brand;
+        this.state = state;
+        this.createdAt = null;
+    }
+
+    // Getters
+    @Override
     public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
 
     public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
 
     public String getBrand() { return brand; }
-    public void setBrand(String brand) { this.brand = brand; }
 
     public DeviceState getState() { return state; }
-    public void setState(DeviceState state) { this.state = state; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
+
+    @Override
+    @Transient
+    public boolean isNew() {
+        // Treat entity as new if it has not been assigned a creation timestamp yet
+        return this.createdAt == null;
+    }
+
+    // equals and hashCode based on id
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Device device = (Device) o;
+        return id != null && id.equals(device.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }
