@@ -30,6 +30,10 @@ Notes:
       ./gradlew bootRun 
   ```
 
+After the app starts locally, you can access the api through the following endpoints:
+
+- [Swagger UI dashboard](http://localhost:8080/)
+- [OpenAPI JSON](http://localhost:8080/api-docs)
 ### To run the test  
   ```bash
       cd devices-api

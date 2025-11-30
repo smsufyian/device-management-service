@@ -8,6 +8,7 @@ jacoco = "0.8.12"
 checkstyle = "10.13.0"
 pmd = "7.0.0"
 owaspDependencyCheck = "9.0.9"
+openapiui = "3.0.0"
 
 [libraries]
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
@@ -15,6 +16,7 @@ spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-
 spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
 spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
+spring-boot-starter-webmvc-openapiui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "openapiui" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-docker-compose = { module = "org.springframework.boot:spring-boot-docker-compose" }
 spring-boot-dev-tools = { module = "org.springframework.boot:spring-boot-devtools" }

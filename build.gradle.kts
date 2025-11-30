@@ -128,6 +128,7 @@ dependencies {
     implementation(libs.spring.boot.starter.flyway)
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.webmvc)
+    implementation(libs.spring.boot.starter.webmvc.openapiui)
     implementation(libs.flyway.database.postgresql)
     developmentOnly(libs.spring.boot.docker.compose)
     developmentOnly(libs.spring.boot.dev.tools)
@@ -143,6 +144,10 @@ dependencies {
 
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
+}
+
+springBoot {
+    buildInfo()
 }
 
 tasks.jacocoTestReport {
