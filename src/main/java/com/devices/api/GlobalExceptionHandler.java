@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     private static final String VALIDATION_PROBLEM_TYPE = "https://api.example.com/errors/validation-error";
+    private static final String MALFORMED_JSON_PROBLEM_TYPE = "https://api.example.com/errors/malformed-json";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationExceptions(MethodArgumentNotValidException ex,
@@ -38,6 +40,16 @@ public class GlobalExceptionHandler {
                         .collect(Collectors.toList())
         );
 
+        return ResponseEntity.badRequest().body(problem);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+                                                                      HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Malformed JSON request");
+        problem.setTitle("Malformed Request");
+        problem.setType(URI.create(MALFORMED_JSON_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
         return ResponseEntity.badRequest().body(problem);
     }
 }

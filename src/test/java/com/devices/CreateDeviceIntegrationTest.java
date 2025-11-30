@@ -162,4 +162,52 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
 
         assertThat(deviceRepository.count()).isZero();
     }
+
+    @Test
+    void shouldReturnBadRequestWhenJsonIsMalformed() {
+
+        String malformedPayloadMissingComma = """
+                {
+                  "name": "Random Name"
+                  "brand": "Apple"
+                }
+                """;
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(malformedPayloadMissingComma)
+                .when()
+                .post("/api/v1/devices")
+                .then()
+                .statusCode(400)
+                .contentType(startsWith("application/problem+json"))
+                .body("status", equalTo(400))
+                .body("title", equalTo("Malformed Request"))
+                .body("detail", equalTo("Malformed JSON request"))
+                .body("instance", equalTo("/api/v1/devices"));
+
+        assertThat(deviceRepository.count()).isZero();
+
+        String malformedPayloadUnclosedString = """
+                {
+                  "name": "Random Name,
+                  "brand": "Apple"
+                }
+                """;
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(malformedPayloadUnclosedString)
+                .when()
+                .post("/api/v1/devices")
+                .then()
+                .statusCode(400)
+                .contentType(startsWith("application/problem+json"))
+                .body("status", equalTo(400))
+                .body("title", equalTo("Malformed Request"))
+                .body("detail", equalTo("Malformed JSON request"))
+                .body("instance", equalTo("/api/v1/devices"));
+
+        assertThat(deviceRepository.count()).isZero();
+    }
 }
