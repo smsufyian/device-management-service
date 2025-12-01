@@ -1,6 +1,6 @@
 package com.devices.api.dto;
 
-import com.devices.model.DeviceStatus;
+import com.devices.domain.DeviceStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 

@@ -1,6 +1,6 @@
 package com.devices.api;
 
-import com.devices.service.exception.*;
+import com.devices.domain.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.jspecify.annotations.NonNull;

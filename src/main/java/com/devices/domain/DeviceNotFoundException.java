@@ -1,4 +1,4 @@
-package com.devices.service.exception;
+package com.devices.domain;
 
 /**
  * Thrown when the device cannot be found.

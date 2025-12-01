@@ -1,4 +1,4 @@
-package com.devices.service.exception;
+package com.devices.domain;
 
 public class VersionConflictException extends RuntimeException {
     public VersionConflictException(String message) {

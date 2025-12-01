@@ -1,4 +1,4 @@
-package com.devices.model;
+package com.devices.domain;
 
 public enum DeviceStatus {
     AVAILABLE,

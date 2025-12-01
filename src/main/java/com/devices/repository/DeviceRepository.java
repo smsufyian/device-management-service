@@ -1,5 +1,6 @@
-package com.devices.persistence;
+package com.devices.repository;
 
+import com.devices.domain.Device;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

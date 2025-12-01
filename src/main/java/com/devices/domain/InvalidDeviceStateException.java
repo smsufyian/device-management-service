@@ -1,4 +1,4 @@
-package com.devices.service.exception;
+package com.devices.domain;
 
 /**
  * Thrown when a provided device state is invalid for the requested operation or does not

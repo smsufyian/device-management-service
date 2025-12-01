@@ -11,6 +11,7 @@ plugins {
     //TODO: Fix the incompatibility issue with java21
     //alias(libs.plugins.spotless)
     alias(libs.plugins.owaspDependencyCheck)
+    alias(libs.plugins.lombok)
 }
 
 group = "com.devices"

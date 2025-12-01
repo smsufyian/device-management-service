@@ -1,6 +1,6 @@
 package com.devices.api.dto;
 
-import com.devices.model.DeviceStatus;
+import com.devices.domain.DeviceStatus;
 import jakarta.validation.constraints.Size;
 
 public record DeviceFilterRequest(

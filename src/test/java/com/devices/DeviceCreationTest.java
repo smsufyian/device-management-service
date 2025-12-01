@@ -1,8 +1,8 @@
 package com.devices;
 
 import com.devices.api.dto.DeviceResponse;
-import com.devices.model.DeviceStatus;
-import com.devices.persistence.DeviceRepository;
+import com.devices.domain.DeviceStatus;
+import com.devices.repository.DeviceRepository;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

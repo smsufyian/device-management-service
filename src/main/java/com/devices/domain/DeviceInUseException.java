@@ -1,4 +1,4 @@
-package com.devices.service.exception;
+package com.devices.domain;
 
 /**
  * Thrown when a delete operation is attempted on a device that is currently in use.

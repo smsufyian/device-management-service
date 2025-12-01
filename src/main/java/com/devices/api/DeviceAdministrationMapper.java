@@ -3,8 +3,8 @@ package com.devices.api;
 import com.devices.api.dto.CreateDeviceRequest;
 import com.devices.api.dto.DeviceResponse;
 import com.devices.api.dto.PatchDeviceRequest;
-import com.devices.model.DeviceStatus;
-import com.devices.persistence.Device;
+import com.devices.domain.DeviceStatus;
+import com.devices.domain.Device;
 import org.mapstruct.*;
 
 import java.util.List;

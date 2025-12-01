@@ -1,4 +1,4 @@
-package com.devices.service.exception;
+package com.devices.domain;
 
 public class ImmutableFieldViolationException extends RuntimeException {
     private final String fieldName;

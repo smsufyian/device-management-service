@@ -1,6 +1,4 @@
-package com.devices.service.exception;
-
-import com.devices.model.DeviceStatus;
+package com.devices.domain;
 
 public class DeviceFieldLockedException extends RuntimeException {
     private final String fieldName;
