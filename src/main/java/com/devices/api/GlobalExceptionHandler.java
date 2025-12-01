@@ -37,6 +37,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final URI CONFLICT_TYPE = URI.create("https://api.example.com/errors/conflict");
     private static final URI UNPROCESSABLE_TYPE = URI.create("https://api.example.com/errors/unprocessable-entity");
     private static final URI INTERNAL_ERROR_TYPE = URI.create("https://api.example.com/errors/internal-server-error");
+    private static final URI DEVICE_IN_USE_TYPE = URI.create("https://api.example.com/errors/device-in-use");
     private static final String PARAMETER_KEY = "parameter";
     private static final String INVALID_PARAMETER_TITLE = "Invalid Parameter";
     private static final String ERROR_CODE = "errorCode";
@@ -72,8 +73,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<@NonNull Object> handleMissingServletRequestParameter(@NonNull MissingServletRequestParameterException ex,
                                                                                    @NonNull HttpHeaders headers,
-                                                                                   @NonNull HttpStatusCode status,
-                                                                                   @NonNull WebRequest request) {
+                                                                                   @NonNull HttpStatusCode status,@NonNull WebRequest request) {
         String detail = "Missing required parameter '%s'. Expected type: %s.".formatted(ex.getParameterName(), ex.getParameterType());
         ProblemDetail problem = buildProblemDetail(status, detail, INVALID_PARAMETER_TITLE, INVALID_PARAMETER_TYPE, request);
         problem.setProperty(PARAMETER_KEY, ex.getParameterName());
@@ -93,7 +93,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(DeviceInUseException.class)
     ProblemDetail handleDeviceInUse(DeviceInUseException ex, WebRequest request) {
-        return buildProblemDetail(HttpStatus.CONFLICT, ex.getMessage(), "Device In Use", CONFLICT_TYPE, request);
+        return buildProblemDetail(HttpStatus.CONFLICT, ex.getMessage(), "Device in use", DEVICE_IN_USE_TYPE, request);
     }
 
     @ExceptionHandler(ImmutableFieldViolationException.class)

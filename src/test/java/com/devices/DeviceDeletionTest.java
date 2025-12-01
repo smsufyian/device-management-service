@@ -7,7 +7,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
-class DeleteDeviceIntegrationTest extends AbstractIntegrationTest {
+class DeviceDeletionTest extends AbstractIntegrationTest {
 
     @Test
     void shouldDeleteDeviceWhenStateIsAvailable() {
@@ -79,22 +79,6 @@ class DeleteDeviceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturnNotFoundWhenDeviceDoesNotExist() {
-        String nonExistingId = java.util.UUID.randomUUID().toString();
-
-        given()
-                .noContentType()
-                .when()
-                .delete("/api/v1/devices/{id}", nonExistingId)
-                .then()
-                .statusCode(404)
-                .contentType("application/problem+json")
-                .body("title", equalTo("Device Not Found"))
-                .body("status", equalTo(404))
-                .body("type", equalTo("https://api.example.com/errors/device-not-found"));
-    }
-
-    @Test
     void shouldReturnConflictWhenDeviceIsInUse() {
         String payload = """
                 {
@@ -124,9 +108,25 @@ class DeleteDeviceIntegrationTest extends AbstractIntegrationTest {
                 .then()
                 .statusCode(409)
                 .contentType("application/problem+json")
-                .body("title", equalTo("Device In Use"))
+                .body("title", equalTo("Device in use"))
                 .body("status", equalTo(409))
                 .body("detail", containsString("cannot be deleted"))
                 .body("type", equalTo("https://api.example.com/errors/device-in-use"));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenDeviceDoesNotExist() {
+        String nonExistingId = java.util.UUID.randomUUID().toString();
+
+        given()
+                .noContentType()
+                .when()
+                .delete("/api/v1/devices/{id}", nonExistingId)
+                .then()
+                .statusCode(404)
+                .contentType("application/problem+json")
+                .body("title", equalTo("Device Not Found"))
+                .body("status", equalTo(404))
+                .body("type", equalTo("https://api.example.com/errors/device-not-found"));
     }
 }

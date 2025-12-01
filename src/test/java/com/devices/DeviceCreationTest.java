@@ -1,5 +1,6 @@
 package com.devices;
 
+import com.devices.api.dto.DeviceResponse;
 import com.devices.model.DeviceStatus;
 import com.devices.persistence.DeviceRepository;
 import io.restassured.http.ContentType;
@@ -10,7 +11,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.*;
 
-class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
+class DeviceCreationTest extends AbstractIntegrationTest {
 
     @Autowired
     private DeviceRepository deviceRepository;
@@ -24,7 +25,7 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
                 }
                 """;
 
-        CreateDeviceResponse response = given()
+        DeviceResponse response = given()
                 .contentType(ContentType.JSON)
                 .body(payload)
                 .when()
@@ -38,7 +39,7 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
                 .body("state", equalTo("AVAILABLE"))
                 .body("creationTime", notNullValue())
                 .extract()
-                .as(CreateDeviceResponse.class);
+                .as(DeviceResponse.class);
 
 
         var saved = deviceRepository.findById(response.id()).orElseThrow();

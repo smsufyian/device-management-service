@@ -59,14 +59,14 @@ public class DeviceService {
                         .and(DeviceSpecification.hasState(filter.status()))
         );
 
-        return deviceAdministrationMapper.toDeviceResponses(devices);
+        return deviceAdministrationMapper.toResponseList(devices);
     }
 
     @Transactional(readOnly = true)
     public DeviceResponse findById(UUID id) {
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceNotFoundException("Device with id %s not found".formatted(id)));
-        return deviceAdministrationMapper.toDeviceResponse(device);
+        return deviceAdministrationMapper.toResponse(device);
     }
 
     @Transactional
@@ -86,20 +86,8 @@ public class DeviceService {
 
     @Transactional
     public DeviceResponse updateFull(UUID id, PutDeviceRequest request) {
-        if (request.id() != null && !request.id().equals(id)) {
-            throw new IllegalArgumentException("ID in body does not match path parameter");
-        }
-
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceNotFoundException("Device with id %s not found".formatted(id)));
-
-        // Optimistic locking using If-Match ETag if provided
-        if (ifMatch != null && !ifMatch.isBlank()) {
-            String currentEtag = '"' + computeEtagInternal(device) + '"';
-            if (!ifMatch.equals(currentEtag)) {
-                throw new VersionConflictException("Version conflict detected for device %s".formatted(id));
-            }
-        }
 
         if (device.getState() == DeviceStatus.IN_USE) {
             if (!device.getName().equals(request.name())) {
@@ -119,7 +107,7 @@ public class DeviceService {
         try {
             Device saved = deviceRepository.saveAndFlush(device);
             entityManager.refresh(saved);
-            return deviceAdministrationMapper.toDeviceResponse(saved);
+            return deviceAdministrationMapper.toResponse(saved);
         } catch (OptimisticLockingFailureException e) {
             throw new VersionConflictException("Version conflict detected for device %s".formatted(id));
         }
@@ -129,13 +117,6 @@ public class DeviceService {
     public DeviceResponse updatePartial(UUID id, com.devices.api.dto.PatchDeviceRequest patch) {
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceNotFoundException("Device with id %s not found".formatted(id)));
-
-        if (ifMatch != null && !ifMatch.isBlank()) {
-            String currentEtag = '"' + computeEtagInternal(device) + '"';
-            if (!ifMatch.equals(currentEtag)) {
-                throw new VersionConflictException("Version conflict detected for device %s".formatted(id));
-            }
-        }
 
         if (patch == null || (patch.name() == null && patch.brand() == null && patch.state() == null)) {
             throw new IllegalArgumentException("PATCH request must contain at least one updatable field");
@@ -159,7 +140,7 @@ public class DeviceService {
         try {
             Device saved = deviceRepository.saveAndFlush(device);
             entityManager.refresh(saved);
-            return deviceAdministrationMapper.toDeviceResponse(saved);
+            return deviceAdministrationMapper.toResponse(saved);
         } catch (OptimisticLockingFailureException e) {
             throw new VersionConflictException("Version conflict detected for device %s".formatted(id));
         }
