@@ -6,6 +6,7 @@ import com.devices.api.dto.DeviceFilterRequest;
 import com.devices.api.dto.DeviceResponse;
 import com.devices.api.dto.PutDeviceRequest;
 import com.devices.api.mapper.DeviceMapper;
+import com.devices.model.DeviceStatus;
 import com.devices.persistence.Device;
 import com.devices.persistence.DeviceRepository;
 import com.devices.persistence.DeviceSpecification;
@@ -103,11 +104,7 @@ public class DeviceService {
             }
         }
 
-        // Business rules
-        // creationTime is immutable -> our DTO does not carry it; nothing to check here
-
-        // Lock name/brand when IN_USE
-        if (device.getState() == com.devices.model.DeviceStatus.IN_USE) {
+        if (device.getState() == DeviceStatus.IN_USE) {
             if (!device.getName().equals(request.name())) {
                 throw new DeviceFieldLockedException("Cannot update 'name' field when device is in IN_USE state",
                         "name", device.getState());
@@ -118,9 +115,6 @@ public class DeviceService {
             }
         }
 
-        // State transitions: for now allow all among AVAILABLE, IN_USE, INACTIVE
-
-        // Apply full replacement of mutable fields
         device.setName(request.name());
         device.setBrand(request.brand());
         device.setState(request.state());
@@ -135,7 +129,7 @@ public class DeviceService {
     }
 
     @Transactional
-    public DeviceResponse updatePartial(UUID id, Map<String, Object> patch, String ifMatch) {
+    public DeviceResponse updatePartial(UUID id, com.devices.api.dto.PatchDeviceRequest patch, String ifMatch) {
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceNotFoundException("Device with id %s not found".formatted(id)));
 
@@ -146,71 +140,24 @@ public class DeviceService {
             }
         }
 
-        if (patch == null || patch.isEmpty()) {
+        if (patch == null || (patch.name() == null && patch.brand() == null && patch.state() == null)) {
             throw new IllegalArgumentException("PATCH request must contain at least one updatable field");
         }
 
-        // Reject immutable fields
-        if (patch.containsKey("creationTime")) {
-            throw new ImmutableFieldViolationException("Cannot update 'creationTime' field", "creationTime");
-        }
-        // Ignore id in patch for now
-
-        boolean changed = false;
-
-        if (patch.containsKey("name")) {
-            Object v = patch.get("name");
-            if (v == null) {
-                throw new IllegalArgumentException("Field 'name' must not be null");
-            }
-            String value = v.toString();
-            if (device.getState() == com.devices.model.DeviceStatus.IN_USE && !device.getName().equals(value)) {
+        // Enforce field locks when device is IN_USE
+        if (device.getState() == DeviceStatus.IN_USE) {
+            if (patch.name() != null && !device.getName().equals(patch.name())) {
                 throw new DeviceFieldLockedException("Cannot update 'name' field when device is in IN_USE state",
                         "name", device.getState());
             }
-            if (!device.getName().equals(value)) {
-                device.setName(value);
-                changed = true;
-            }
-        }
-
-        if (patch.containsKey("brand")) {
-            Object v = patch.get("brand");
-            if (v == null) {
-                throw new IllegalArgumentException("Field 'brand' must not be null");
-            }
-            String value = v.toString();
-            if (device.getState() == com.devices.model.DeviceStatus.IN_USE && !device.getBrand().equals(value)) {
+            if (patch.brand() != null && !device.getBrand().equals(patch.brand())) {
                 throw new DeviceFieldLockedException("Cannot update 'brand' field when device is in IN_USE state",
                         "brand", device.getState());
             }
-            if (!device.getBrand().equals(value)) {
-                device.setBrand(value);
-                changed = true;
-            }
         }
 
-        if (patch.containsKey("state")) {
-            Object v = patch.get("state");
-            if (v == null) {
-                throw new IllegalArgumentException("Field 'state' must not be null");
-            }
-            com.devices.model.DeviceStatus newState;
-            try {
-                newState = com.devices.model.DeviceStatus.valueOf(v.toString());
-            } catch (IllegalArgumentException ex) {
-                throw ex; // will be handled as 400 by existing handlers
-            }
-            if (device.getState() != newState) {
-                device.setState(newState);
-                changed = true;
-            }
-        }
-
-        if (!changed) {
-            // No-op patch is idempotent; return current representation
-            return deviceMapper.toDeviceResponse(device);
-        }
+        // Apply partial update via MapStruct (ignoring nulls)
+        deviceMapper.updateDeviceFromPatch(patch, device);
 
         try {
             Device saved = deviceRepository.saveAndFlush(device);

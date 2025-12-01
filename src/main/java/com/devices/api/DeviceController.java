@@ -5,11 +5,9 @@ import com.devices.api.dto.CreateDeviceResponse;
 import com.devices.api.dto.DeviceFilterRequest;
 import com.devices.api.dto.DeviceResponse;
 import com.devices.api.dto.PutDeviceRequest;
-import com.devices.model.DeviceStatus;
+import com.devices.api.dto.PatchDeviceRequest;
 import com.devices.service.DeviceService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,11 +19,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/devices")
 @Validated
-public class DeviceControllerDocs implements DeviceAPIDocs {
+public class DeviceController implements DeviceAPI {
 
     private final DeviceService deviceService;
 
-    public DeviceControllerDocs(DeviceService deviceService) {
+    public DeviceController(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
@@ -68,7 +66,7 @@ public class DeviceControllerDocs implements DeviceAPIDocs {
     public ResponseEntity<DeviceResponse> patchDevice(
             @PathVariable UUID id,
             @RequestHeader(value = "If-Match", required = false) String ifMatch,
-            @RequestBody java.util.Map<String, Object> patch
+            @Valid @RequestBody PatchDeviceRequest patch
     ) {
         DeviceResponse response = deviceService.updatePartial(id, patch, ifMatch);
         String etag = '"' + deviceService.computeEtag(response.id()) + '"';

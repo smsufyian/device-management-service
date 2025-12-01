@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.UUID;
 
 @Tag(name = "Devices", description = "Device management operations")
-public interface DeviceAPIDocs {
+public interface DeviceAPI {
     @Operation(
             summary = "Create a new device",
             description = "Creates a device with the provided name and brand",
