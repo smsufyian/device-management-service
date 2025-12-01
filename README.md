@@ -153,6 +153,5 @@ Run everything with `./gradlew test` (CI does the same).
   - Prefer PUT for upserts when the resource ID is known.
   - Use optimistic locking (already present via `@Version` and `VersionConflictException`) to guard concurrent updates.
 
-3) API consistency & discoverability
-- Standardize error payloads and problem details across endpoints; ensure examples in OpenAPI.
-- Add basic rate limits and request validation to reduce noisy traffic.
+3) Improve the design of the service by transition to different states through State Machine.
+
