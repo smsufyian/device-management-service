@@ -1,6 +1,5 @@
 package com.devices;
 
-import com.devices.api.dto.CreateDeviceResponse;
 import com.devices.model.DeviceStatus;
 import com.devices.persistence.DeviceRepository;
 import io.restassured.http.ContentType;

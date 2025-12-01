@@ -1,11 +1,10 @@
 package com.devices.service;
 
 import com.devices.api.dto.CreateDeviceRequest;
-import com.devices.api.dto.CreateDeviceResponse;
 import com.devices.api.dto.DeviceFilterRequest;
 import com.devices.api.dto.DeviceResponse;
 import com.devices.api.dto.PutDeviceRequest;
-import com.devices.api.mapper.DeviceMapper;
+import com.devices.api.DeviceAdministrationMapper;
 import com.devices.model.DeviceStatus;
 import com.devices.persistence.Device;
 import com.devices.persistence.DeviceRepository;
@@ -13,7 +12,6 @@ import com.devices.persistence.DeviceSpecification;
 import com.devices.service.exception.DeviceNotFoundException;
 import com.devices.service.exception.DeviceInUseException;
 import com.devices.service.exception.DeviceFieldLockedException;
-import com.devices.service.exception.ImmutableFieldViolationException;
 import com.devices.service.exception.VersionConflictException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -26,30 +24,29 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
-    private final DeviceMapper deviceMapper;
+    private final DeviceAdministrationMapper deviceAdministrationMapper;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public DeviceService(DeviceRepository deviceRepository, DeviceMapper deviceMapper) {
+    public DeviceService(DeviceRepository deviceRepository, DeviceAdministrationMapper deviceAdministrationMapper) {
         this.deviceRepository = deviceRepository;
-        this.deviceMapper = deviceMapper;
+        this.deviceAdministrationMapper = deviceAdministrationMapper;
     }
 
     @Transactional
-    public CreateDeviceResponse create(CreateDeviceRequest request) {
-        Device device = deviceMapper.toEntity(request);
+    public DeviceResponse create(CreateDeviceRequest request) {
+        Device device = deviceAdministrationMapper.toEntity(request);
         Device savedDevice = deviceRepository.save(device);
         deviceRepository.flush();
         entityManager.refresh(savedDevice);
-        return deviceMapper.toResponse(savedDevice);
+        return deviceAdministrationMapper.toResponse(savedDevice);
     }
 
     @Transactional(readOnly = true)
@@ -62,14 +59,14 @@ public class DeviceService {
                         .and(DeviceSpecification.hasState(filter.status()))
         );
 
-        return deviceMapper.toDeviceResponses(devices);
+        return deviceAdministrationMapper.toDeviceResponses(devices);
     }
 
     @Transactional(readOnly = true)
     public DeviceResponse findById(UUID id) {
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceNotFoundException("Device with id %s not found".formatted(id)));
-        return deviceMapper.toDeviceResponse(device);
+        return deviceAdministrationMapper.toDeviceResponse(device);
     }
 
     @Transactional
@@ -88,7 +85,7 @@ public class DeviceService {
     }
 
     @Transactional
-    public DeviceResponse updateFull(UUID id, PutDeviceRequest request, String ifMatch) {
+    public DeviceResponse updateFull(UUID id, PutDeviceRequest request) {
         if (request.id() != null && !request.id().equals(id)) {
             throw new IllegalArgumentException("ID in body does not match path parameter");
         }
@@ -122,14 +119,14 @@ public class DeviceService {
         try {
             Device saved = deviceRepository.saveAndFlush(device);
             entityManager.refresh(saved);
-            return deviceMapper.toDeviceResponse(saved);
+            return deviceAdministrationMapper.toDeviceResponse(saved);
         } catch (OptimisticLockingFailureException e) {
             throw new VersionConflictException("Version conflict detected for device %s".formatted(id));
         }
     }
 
     @Transactional
-    public DeviceResponse updatePartial(UUID id, com.devices.api.dto.PatchDeviceRequest patch, String ifMatch) {
+    public DeviceResponse updatePartial(UUID id, com.devices.api.dto.PatchDeviceRequest patch) {
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceNotFoundException("Device with id %s not found".formatted(id)));
 
@@ -157,12 +154,12 @@ public class DeviceService {
         }
 
         // Apply partial update via MapStruct (ignoring nulls)
-        deviceMapper.updateDeviceFromPatch(patch, device);
+        deviceAdministrationMapper.updateDeviceFromPatch(patch, device);
 
         try {
             Device saved = deviceRepository.saveAndFlush(device);
             entityManager.refresh(saved);
-            return deviceMapper.toDeviceResponse(saved);
+            return deviceAdministrationMapper.toDeviceResponse(saved);
         } catch (OptimisticLockingFailureException e) {
             throw new VersionConflictException("Version conflict detected for device %s".formatted(id));
         }

@@ -6,13 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.UUID;
-
 @Schema(name = "PutDeviceRequest", description = "Full update payload for a device (all mutable fields required)")
 public record PutDeviceRequest(
-        @Schema(description = "Optional id, must match path if provided", example = "550e8400-e29b-41d4-a716-446655440000")
-        UUID id,
-
         @Schema(description = "Device name", example = "Updated Thermostat", maxLength = 100, requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "Device name must not be blank")
         @Size(max = 100, message = "Device name must not exceed 100 characters")
@@ -23,7 +18,8 @@ public record PutDeviceRequest(
         @Size(max = 50, message = "Device brand must not exceed 50 characters")
         String brand,
 
-        @Schema(description = "Device state", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = {"AVAILABLE","IN_USE","INACTIVE"})
+        @Schema(description = "Device state", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = {"AVAILABLE", "IN_USE", "INACTIVE"})
         @NotNull(message = "Device state must be provided")
         DeviceStatus state
-) {}
+) {
+}

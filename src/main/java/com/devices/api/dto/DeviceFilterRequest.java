@@ -10,8 +10,4 @@ public record DeviceFilterRequest(
         @Size(max = 100, message = "Name must not exceed 100 characters")
         String name,
 
-        DeviceStatus status) {
-    public boolean isEmpty() {
-        return brand == null && name == null && status == null;
-    }
-}
+        DeviceStatus status) { }

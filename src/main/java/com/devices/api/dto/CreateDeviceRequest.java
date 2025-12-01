@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 @Schema(name = "CreateDeviceRequest", description = "Payload to create a new device")
 public record CreateDeviceRequest(
-        @Schema(description = "Human-friendly device name", example = "Thermostat Living Room", maxLength = 100, requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Name of the device", example = "Thermostat Living Room", maxLength = 100, requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "Device name must not be blank")
         @Size(max = 100, message = "Device name must not exceed 100 characters")
         String name,
