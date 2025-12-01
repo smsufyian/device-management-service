@@ -6,12 +6,14 @@ import com.devices.api.mapper.DeviceMapper;
 import com.devices.api.dto.DeviceResponse;
 import com.devices.persistence.Device;
 import com.devices.persistence.DeviceRepository;
+import com.devices.service.exception.DeviceNotFoundException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DeviceService {
@@ -40,5 +42,12 @@ public class DeviceService {
     public List<DeviceResponse> getAll() {
         var devices = deviceRepository.findAll();
         return deviceMapper.toDeviceResponses(devices);
+    }
+
+    @Transactional(readOnly = true)
+    public DeviceResponse getById(UUID id) {
+        Device device = deviceRepository.findById(id)
+                .orElseThrow(() -> new DeviceNotFoundException("Device with id %s not found".formatted(id)));
+        return deviceMapper.toDeviceResponse(device);
     }
 }

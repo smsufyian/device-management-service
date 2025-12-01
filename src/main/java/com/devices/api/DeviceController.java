@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/devices")
@@ -78,5 +80,33 @@ public class DeviceController {
     public ResponseEntity<List<DeviceResponse>> getAll() {
         List<DeviceResponse> devices = deviceService.getAll();
         return ResponseEntity.ok(devices);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(
+            summary = "Get device by id",
+            description = "Returns a device for the given identifier.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Device details",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = DeviceResponse.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid id supplied",
+                            content = @Content(mediaType = "application/problem+json")
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Device not found",
+                            content = @Content(mediaType = "application/problem+json")
+                    )
+            }
+    )
+    public ResponseEntity<DeviceResponse> getById(@PathVariable("id") @Nonnull UUID id) {
+        DeviceResponse device = deviceService.getById(id);
+        return ResponseEntity.ok(device);
     }
 }

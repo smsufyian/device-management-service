@@ -15,6 +15,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -24,6 +25,7 @@ public class GlobalExceptionHandler {
     private static final String MALFORMED_JSON_PROBLEM_TYPE = "https://api.example.com/errors/malformed-json";
     private static final String NOT_FOUND_PROBLEM_TYPE = "https://api.example.com/errors/device-not-found";
     private static final String INVALID_STATE_PROBLEM_TYPE = "https://api.example.com/errors/invalid-device-state";
+    private static final String INVALID_PARAMETER_PROBLEM_TYPE = "https://api.example.com/errors/invalid-parameter";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationExceptions(MethodArgumentNotValidException ex,
@@ -74,6 +76,23 @@ public class GlobalExceptionHandler {
         problem.setTitle("Invalid Device State");
         problem.setType(URI.create(INVALID_STATE_PROBLEM_TYPE));
         problem.setInstance(URI.create(request.getRequestURI()));
+        return ResponseEntity.badRequest().body(problem);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ProblemDetail> handleTypeMismatch(MethodArgumentTypeMismatchException ex,
+                                                            HttpServletRequest request) {
+        String parameterName = ex.getName();
+        String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "Unknown";
+        String detail = ("Invalid value for parameter '%s'. Expected type: %s.").formatted(parameterName, requiredType);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        problem.setTitle("Invalid Parameter");
+        problem.setType(URI.create(INVALID_PARAMETER_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("parameter", parameterName);
+        problem.setProperty("expectedType", requiredType);
+        problem.setProperty("rejectedValue", ex.getValue());
         return ResponseEntity.badRequest().body(problem);
     }
 }
