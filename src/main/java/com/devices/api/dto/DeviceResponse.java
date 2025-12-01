@@ -4,6 +4,7 @@ import com.devices.domain.DeviceStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -22,6 +23,6 @@ public record DeviceResponse(
         @NotNull DeviceStatus state,
 
         @Schema(description = "ISO-8601 timestamp when the device was created", example = "2025-01-01T12:00:00Z", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotNull OffsetDateTime creationTime
+        @NotNull Instant creationTime
 ) {
 }

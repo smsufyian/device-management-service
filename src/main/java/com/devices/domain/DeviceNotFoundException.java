@@ -1,10 +1,15 @@
 package com.devices.domain;
 
-/**
- * Thrown when the device cannot be found.
- */
+import lombok.Getter;
+import java.util.UUID;
+
+@Getter
 public class DeviceNotFoundException extends RuntimeException {
-    public DeviceNotFoundException(String message) {
-        super(message);
+    
+    private final UUID deviceId;
+
+    public DeviceNotFoundException(UUID deviceId) {
+        super("Device with id %s not found".formatted(deviceId));
+        this.deviceId = deviceId;
     }
 }

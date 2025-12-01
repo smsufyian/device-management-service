@@ -1,10 +1,15 @@
 package com.devices.domain;
 
-/**
- * Thrown when a delete operation is attempted on a device that is currently in use.
- */
+import lombok.Getter;
+import java.util.UUID;
+
+@Getter
 public class DeviceInUseException extends RuntimeException {
-    public DeviceInUseException(String message) {
-        super(message);
+    
+    private final UUID deviceId;
+
+    public DeviceInUseException(UUID deviceId) {
+        super("Device with id %s is in use and cannot be deleted".formatted(deviceId));
+        this.deviceId = deviceId;
     }
 }

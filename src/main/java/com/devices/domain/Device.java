@@ -7,7 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -39,7 +39,7 @@ public class Device implements Persistable<@NonNull UUID> {
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "timestamptz")
-    private OffsetDateTime createdAt;
+    private Instant createdAt;
 
     @Version
     @Column(name = "version", nullable = false)
@@ -52,21 +52,14 @@ public class Device implements Persistable<@NonNull UUID> {
         this.state = state;
         this.createdAt = null;
     }
+
     public void updateDetails(String newName, String newBrand, DeviceStatus newState) {
         if (this.state == DeviceStatus.IN_USE) {
             if (!this.name.equals(newName)) {
-                throw new DeviceFieldLockedException(
-                        "Cannot update 'name' field when device is in IN_USE state",
-                        "name",
-                        this.state
-                );
+                throw new DeviceFieldLockedException("name", this.state);
             }
             if (!this.brand.equals(newBrand)) {
-                throw new DeviceFieldLockedException(
-                        "Cannot update 'brand' field when device is in IN_USE state",
-                        "brand",
-                        this.state
-                );
+                throw new DeviceFieldLockedException("brand", this.state);
             }
         }
         this.name = newName;
@@ -78,14 +71,12 @@ public class Device implements Persistable<@NonNull UUID> {
         if (this.state == DeviceStatus.IN_USE) {
             if (nameCandidate != null && !this.name.equals(nameCandidate)) {
                 throw new DeviceFieldLockedException(
-                        "Cannot update 'name' field when device is in IN_USE state",
                         "name",
                         this.state
                 );
             }
             if (brandCandidate != null && !this.brand.equals(brandCandidate)) {
                 throw new DeviceFieldLockedException(
-                        "Cannot update 'brand' field when device is in IN_USE state",
                         "brand",
                         this.state
                 );
