@@ -8,7 +8,7 @@ import java.util.UUID;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-class GetDeviceIntegrationTest extends AbstractIntegrationTest {
+class DeviceFindingTest extends AbstractIntegrationTest {
 
     @Test
     void shouldGetEmptyListWhenNoDevicesExist() {
@@ -23,7 +23,19 @@ class GetDeviceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturnAllDevicesWhenTheyExist() {
+    void shouldGetEmptyListWhenThereAreNoDevicesForStatusIsInUse() {
+        given()
+                .noContentType()
+                .when()
+                .get("/api/v1/devices?status={status}", "IN_USE")
+                .then()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("size()", equalTo(0));
+    }
+
+    @Test
+    void shouldGetAllDevicesWhenDevicesExist() {
         String device1 = """
                 {
                   "name": "Thermostat",
@@ -143,7 +155,7 @@ class GetDeviceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldReturnDevicesByBrand() {
+    void shouldGetDevicesByBrand() {
         String nestDevice1 = """
                 {
                   "name": "Thermostat",
@@ -213,17 +225,5 @@ class GetDeviceIntegrationTest extends AbstractIntegrationTest {
                 .body("state", everyItem(equalTo("AVAILABLE")))
                 .body("id", everyItem(notNullValue()))
                 .body("creationTime", everyItem(notNullValue()));
-    }
-
-    @Test
-    void shouldGetEmptyListWhenThereAreNoDevicesForStatusIsInUse() {
-        given()
-                .noContentType()
-                .when()
-                .get("/api/v1/devices?status={status}", "IN_USE")
-                .then()
-                .statusCode(200)
-                .contentType(ContentType.JSON)
-                .body("size()", equalTo(0));
     }
 }
