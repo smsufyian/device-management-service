@@ -28,6 +28,10 @@ public class Device implements Persistable<UUID> {
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false, columnDefinition = "timestamptz")
     private OffsetDateTime createdAt;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     // Protected no-arg constructor required by JPA (Hibernate)
     protected Device() {
         // for JPA
@@ -53,6 +57,13 @@ public class Device implements Persistable<UUID> {
     public DeviceStatus getState() { return state; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
+
+    public Long getVersion() { return version; }
+
+    // Setters for mutable fields
+    public void setName(String name) { this.name = name; }
+    public void setBrand(String brand) { this.brand = brand; }
+    public void setState(DeviceStatus state) { this.state = state; }
 
     @Override
     @Transient

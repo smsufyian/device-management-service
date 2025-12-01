@@ -3,6 +3,9 @@ package com.devices.api;
 import com.devices.service.exception.DeviceNotFoundException;
 import com.devices.service.exception.InvalidDeviceStateException;
 import com.devices.service.exception.DeviceInUseException;
+import com.devices.service.exception.ImmutableFieldViolationException;
+import com.devices.service.exception.DeviceFieldLockedException;
+import com.devices.service.exception.VersionConflictException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.Map;
@@ -20,10 +23,15 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     private static final String VALIDATION_PROBLEM_TYPE = "https://api.example.com/errors/validation-error";
     private static final String MALFORMED_JSON_PROBLEM_TYPE = "https://api.example.com/errors/malformed-json";
@@ -31,6 +39,9 @@ public class GlobalExceptionHandler {
     private static final String INVALID_STATE_PROBLEM_TYPE = "https://api.example.com/errors/invalid-device-state";
     private static final String INVALID_PARAMETER_PROBLEM_TYPE = "https://api.example.com/errors/invalid-parameter";
     private static final String DEVICE_IN_USE_PROBLEM_TYPE = "https://api.example.com/errors/device-in-use";
+    private static final String UNPROCESSABLE_PROBLEM_TYPE = "https://api.example.com/errors/unprocessable-entity";
+    private static final String VERSION_CONFLICT_PROBLEM_TYPE = "https://api.example.com/errors/version-conflict";
+    private static final String INTERNAL_ERROR_PROBLEM_TYPE = "https://api.example.com/errors/internal-server-error";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationExceptions(MethodArgumentNotValidException ex,
@@ -92,6 +103,62 @@ public class GlobalExceptionHandler {
         problem.setType(URI.create(DEVICE_IN_USE_PROBLEM_TYPE));
         problem.setInstance(URI.create(request.getRequestURI()));
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(ImmutableFieldViolationException.class)
+    public ResponseEntity<ProblemDetail> handleImmutableField(ImmutableFieldViolationException ex,
+                                                              HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        problem.setTitle("Unprocessable Entity");
+        problem.setType(URI.create(UNPROCESSABLE_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("errorCode", "IMMUTABLE_FIELD_VIOLATION");
+        problem.setProperty("fieldName", ex.getFieldName());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problem);
+    }
+
+    @ExceptionHandler(DeviceFieldLockedException.class)
+    public ResponseEntity<ProblemDetail> handleFieldLocked(DeviceFieldLockedException ex,
+                                                           HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        problem.setTitle("Unprocessable Entity");
+        problem.setType(URI.create(UNPROCESSABLE_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("errorCode", "DEVICE_IN_USE_FIELD_LOCKED");
+        problem.setProperty("fieldName", ex.getFieldName());
+        problem.setProperty("currentState", ex.getCurrentState());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problem);
+    }
+
+    @ExceptionHandler({VersionConflictException.class, OptimisticLockingFailureException.class})
+    public ResponseEntity<ProblemDetail> handleVersionConflict(RuntimeException ex,
+                                                               HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Version Conflict");
+        problem.setType(URI.create(VERSION_CONFLICT_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("errorCode", "VERSION_CONFLICT");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ProblemDetail> handleIllegalArgument(IllegalArgumentException ex,
+                                                               HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("Validation Error");
+        problem.setType(URI.create(VALIDATION_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        return ResponseEntity.badRequest().body(problem);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ProblemDetail> handleAll(Exception ex, HttpServletRequest request) {
+        log.error("Unhandled exception", ex);
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+        problem.setTitle("Internal Server Error");
+        problem.setType(URI.create(INTERNAL_ERROR_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
