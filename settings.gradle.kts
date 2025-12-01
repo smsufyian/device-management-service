@@ -1,1 +1,1 @@
-rootProject.name = "devices-api"
+rootProject.name = "device-management-service"

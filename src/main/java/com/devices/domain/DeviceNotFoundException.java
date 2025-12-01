@@ -5,7 +5,7 @@ import java.util.UUID;
 
 @Getter
 public class DeviceNotFoundException extends RuntimeException {
-    
+
     private final UUID deviceId;
 
     public DeviceNotFoundException(UUID deviceId) {

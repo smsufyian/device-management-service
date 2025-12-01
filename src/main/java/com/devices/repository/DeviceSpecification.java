@@ -6,7 +6,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.domain.Specification;
 
 public class DeviceSpecification {
-    private DeviceSpecification() {}
+    private DeviceSpecification() { }
 
     public static Specification<@NonNull Device> hasBrand(String brand) {
         return (root, query, criteriaBuilder) ->

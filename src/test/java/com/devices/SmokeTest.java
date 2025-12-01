@@ -27,16 +27,16 @@ class SmokeTest extends AbstractIntegrationTest {
 
     @Test
     void healthEndpointsAreUp() throws Exception {
-        mockMvc.perform(get("/actuator/health"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", equalTo("UP")));
+        mockMvc.perform(get("/actuator/health")).
+                andExpect(status().isOk()).
+                andExpect(jsonPath("$.status", equalTo("UP")));
 
-        mockMvc.perform(get("/actuator/health/liveness"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", equalTo("UP")));
+        mockMvc.perform(get("/actuator/health/liveness")).
+                andExpect(status().isOk()).
+                andExpect(jsonPath("$.status", equalTo("UP")));
 
-        mockMvc.perform(get("/actuator/health/readiness"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", equalTo("UP")));
+        mockMvc.perform(get("/actuator/health/readiness")).
+                andExpect(status().isOk()).
+                andExpect(jsonPath("$.status", equalTo("UP")));
     }
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 public class DeviceFieldLockedException extends RuntimeException {
     
     private final String fieldName;
+
     private final DeviceStatus currentState;
 
     public DeviceFieldLockedException(String fieldName, DeviceStatus currentState) {

@@ -1,7 +1,7 @@
 
-# 🚀 Devices API
+# 🚀 Device Management Service
 
-Devices API is a Spring Boot REST service for managing devices, backed by PostgreSQL.
+Device Management Service is a Spring Boot REST service for managing devices, backed by PostgreSQL.
 
 ![Java](https://img.shields.io/badge/JDK-21-0A7BBB?logo=java&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?logo=spring-boot&logoColor=white)
@@ -12,7 +12,7 @@ This guide helps first‑time readers understand what the service does, how to r
 
 ## 📖 What is this service?
 
-Devices API provides CRUD and search for devices (e.g., create, update, patch, delete, find/filter). It follows a simple layered architecture:
+Device Management Service provides CRUD and search for devices (e.g., create, update, patch, delete, find/filter). It follows a simple layered architecture:
 
 - API layer: [`DeviceAdministrationController`](src/main/java/com/devices/api/DeviceAdministrationController.java) exposes endpoints and maps DTOs.
 - Service layer: [`DeviceService`](src/main/java/com/devices/service/DeviceService.java) holds business rules (validation, state checks, immutable fields, etc.).
@@ -24,7 +24,7 @@ Devices API provides CRUD and search for devices (e.g., create, update, patch, d
 ## 🧭 Table of Contents
 
 - [📖 What is this service?](#-what-is-this-service)
-- [🔎 Devices API at a glance](#-devices-api-at-a-glance-domain-capabilities-and-rules)
+- [🔎 Device Management Service at a glance](#-devices-api-at-a-glance-domain-capabilities-and-rules)
 - [🧰 Prerequisites](#-1-prerequisites)
 - [⚡ Quick Start](#-quick-start)
 - [📚 API documentation setup](#-api-documentation-setup)
@@ -36,7 +36,7 @@ Devices API provides CRUD and search for devices (e.g., create, update, patch, d
 
 ---
 
-### 🔎 Devices API at a glance (domain, capabilities, and rules)
+### 🔎 Device Management at a glance (domain, capabilities, and rules)
 
 - Device domain model
   - Fields: `id`, `name`, `brand`, `state` (`AVAILABLE`, `IN_USE`, `INACTIVE`), `createdAt`, `version`.

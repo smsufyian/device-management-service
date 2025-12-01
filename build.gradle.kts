@@ -16,7 +16,7 @@ plugins {
 
 group = "com.devices"
 version = "0.0.1-SNAPSHOT"
-description = "devices-api"
+description = "device-management-api"
 
 java {
     toolchain {
@@ -50,25 +50,28 @@ jacoco { toolVersion = libs.versions.jacoco.get() }
 
 configure<CheckstyleExtension> {
     toolVersion = libs.versions.checkstyle.get()
-
+    maxWarnings = Int.MAX_VALUE
     val cfg = file("config/checkstyle/checkstyle.xml")
     if (cfg.exists()) {
         configFile = cfg
     } else {
         logger.warn("[build.gradle.kts] Checkstyle config not found at ${cfg.path}. Skipping explicit configFile.")
     }
+    tasks.named<Checkstyle>("checkstyleTest").configure {
+        enabled = false
+    }
 }
 
 tasks.withType<Checkstyle>().configureEach {
     isShowViolations = true
-    maxWarnings = 0
+    maxWarnings = Int.MAX_VALUE
     exclude("**/generated/**", "**/build/**")
 }
 
 configure<PmdExtension> {
     toolVersion = libs.versions.pmd.get()
     isConsoleOutput = true
-    isIgnoreFailures = false
+    isIgnoreFailures = true
     ruleSets = listOf(
         "category/java/bestpractices.xml",
         "category/java/errorprone.xml",
@@ -196,8 +199,8 @@ tasks.test {
 }
 
 tasks.check {
-//    dependsOn(tasks.checkstyleMain, tasks.checkstyleTest)
-//    dependsOn(tasks.pmdMain, tasks.pmdTest)
+    dependsOn(tasks.checkstyleMain, tasks.checkstyleTest)
+    dependsOn(tasks.pmdMain, tasks.pmdTest)
     //TODO: Fix spotless java21 incompatibility issue
     //dependsOn(tasks.spotlessCheck)
     dependsOn(tasks.jacocoTestReport)

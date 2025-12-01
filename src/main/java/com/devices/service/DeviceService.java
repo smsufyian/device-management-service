@@ -24,6 +24,7 @@ public class DeviceService {
 
 
     private final DeviceRepository deviceRepository;
+    
     private final DeviceAdministrationMapper deviceAdministrationMapper;
 
     public DeviceService(DeviceRepository deviceRepository, DeviceAdministrationMapper deviceAdministrationMapper) {
@@ -42,10 +43,10 @@ public class DeviceService {
     public List<DeviceResponse> findDevices(DeviceFilterRequest filter) {
 
         List<Device> devices = deviceRepository.findAll(
-                Specification
-                        .where(DeviceSpecification.hasBrand(filter.brand()))
-                        .and(DeviceSpecification.nameContains(filter.name()))
-                        .and(DeviceSpecification.hasState(filter.status()))
+                Specification.
+                        where(DeviceSpecification.hasBrand(filter.brand())).
+                        and(DeviceSpecification.nameContains(filter.name())).
+                        and(DeviceSpecification.hasState(filter.status()))
         );
 
         return deviceAdministrationMapper.toResponseList(devices);
@@ -54,16 +55,16 @@ public class DeviceService {
 
     @Transactional(readOnly = true)
     public DeviceResponse findById(UUID id) {
-        Device device = deviceRepository.findById(id)
+        Device device = deviceRepository.findById(id).
                 // NOW: Just pass the ID
-                .orElseThrow(() -> new DeviceNotFoundException(id));
+                orElseThrow(() -> new DeviceNotFoundException(id));
         return deviceAdministrationMapper.toResponse(device);
     }
 
     @Transactional
     public void deleteById(UUID id) {
-        Device device = deviceRepository.findById(id)
-                .orElseThrow(() -> new DeviceNotFoundException(id));
+        Device device = deviceRepository.findById(id).
+                orElseThrow(() -> new DeviceNotFoundException(id));
 
         switch (device.getState()) {
             // NOW: Just pass the ID
@@ -77,8 +78,8 @@ public class DeviceService {
 
     @Transactional
     public DeviceResponse updateFull(UUID id, PutDeviceRequest request) {
-        Device device = deviceRepository.findById(id)
-                .orElseThrow(() -> new DeviceNotFoundException(id));
+        Device device = deviceRepository.findById(id).
+                orElseThrow(() -> new DeviceNotFoundException(id));
 
         try {
             device.updateDetails(request.name(), request.brand(), request.state());
@@ -92,8 +93,8 @@ public class DeviceService {
 
     @Transactional
     public DeviceResponse updatePartial(UUID id, com.devices.api.dto.PatchDeviceRequest patch) {
-        Device device = deviceRepository.findById(id)
-                .orElseThrow(() -> new DeviceNotFoundException(id));
+        Device device = deviceRepository.findById(id).
+                orElseThrow(() -> new DeviceNotFoundException(id));
 
         if (patch == null || (patch.name() == null && patch.brand() == null && patch.state() == null)) {
             throw new IllegalArgumentException("PATCH request must contain at least one updatable field");

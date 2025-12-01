@@ -5,7 +5,7 @@ import java.util.UUID;
 
 @Getter
 public class DeviceInUseException extends RuntimeException {
-    
+
     private final UUID deviceId;
 
     public DeviceInUseException(UUID deviceId) {

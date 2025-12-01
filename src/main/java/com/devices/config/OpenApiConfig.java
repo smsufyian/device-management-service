@@ -15,31 +15,31 @@ public class OpenApiConfig {
 
     @Bean
     public OpenAPI projectOpenAPI(BuildProperties buildProperties) {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Devices API")
-                        .description("REST API for managing devices")
-                        .version(buildProperties.getVersion())
-                        .license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0"))
-                        .contact(new Contact().name("Devices Team").email("msufyian@hotmail.com")))
-                        .externalDocs(new ExternalDocumentation()
-                        .description("Project README")
-                        .url("https://iot.com/devices-api"));
+        return new OpenAPI().
+                info(new Info().
+                        title("Device Management API").
+                        description("REST API for managing devices").
+                        version(buildProperties.getVersion()).
+                        license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0")).
+                        contact(new Contact().name("Devices Team").email("msufyian@hotmail.com"))).
+                externalDocs(new ExternalDocumentation().
+                        description("Project README").
+                        url("https://iot.com/devices-api"));
     }
 
     @Bean
     public GroupedOpenApi publicApi() {
-        return GroupedOpenApi.builder()
-                .group("public")
-                .pathsToMatch("/api/**")
-                .build();
+        return GroupedOpenApi.builder().
+                group("public").
+                pathsToMatch("/api/**").
+                build();
     }
 
     @Bean
     public GroupedOpenApi actuatorApi() {
-        return GroupedOpenApi.builder()
-                .group("actuator")
-                .pathsToMatch("/actuator/**")
-                .build();
+        return GroupedOpenApi.builder().
+                group("actuator").
+                pathsToMatch("/actuator/**").
+                build();
     }
 }
