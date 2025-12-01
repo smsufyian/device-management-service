@@ -1,6 +1,6 @@
 package com.devices.api.dto;
 
-import com.devices.model.DeviceState;
+import com.devices.model.DeviceStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
@@ -19,7 +19,7 @@ public record DeviceResponse(
         @NotNull String brand,
 
         @Schema(description = "Current state of the device", example = "AVAILABLE", allowableValues = {"AVAILABLE", "UNAVAILABLE"}, requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotNull DeviceState state,
+        @NotNull DeviceStatus state,
 
         @Schema(description = "ISO-8601 timestamp when the device was created", example = "2025-01-01T12:00:00Z", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull OffsetDateTime creationTime

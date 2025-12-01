@@ -11,7 +11,67 @@ import static org.hamcrest.Matchers.*;
 class GetDeviceIntegrationTest extends AbstractIntegrationTest {
 
     @Test
-    void shouldReturnDeviceByIdWhenItExists() {
+    void shouldGetEmptyListWhenNoDevicesExist() {
+        given()
+                .noContentType()
+                .when()
+                .get("/api/v1/devices")
+                .then()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("size()", equalTo(0));
+    }
+
+    @Test
+    void shouldReturnAllDevicesWhenTheyExist() {
+        String device1 = """
+                {
+                  "name": "Thermostat",
+                  "brand": "Nest"
+                }
+                """;
+
+        String device2 = """
+                {
+                  "name": "iPhone",
+                  "brand": "Apple"
+                }
+                """;
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(device1)
+                .when()
+                .post("/api/v1/devices")
+                .then()
+                .statusCode(201);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(device2)
+                .when()
+                .post("/api/v1/devices")
+                .then()
+                .statusCode(201);
+
+        given()
+                .noContentType()
+                .when()
+                .get("/api/v1/devices")
+                .then()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("size()", equalTo(2))
+                .body("name", containsInAnyOrder("Thermostat", "iPhone"))
+                .body("brand", containsInAnyOrder("Nest", "Apple"))
+                .body("state", everyItem(equalTo("AVAILABLE")))
+                .body("id", everyItem(notNullValue()))
+                .body("creationTime", everyItem(notNullValue()));
+    }
+
+
+    @Test
+    void shouldGetDeviceByIdWhenItExists() {
         String payload = """
                 {
                   "name": "Thermostat",
@@ -80,5 +140,90 @@ class GetDeviceIntegrationTest extends AbstractIntegrationTest {
                 .body("type", equalTo("https://api.example.com/errors/invalid-parameter"))
                 .body("parameter", equalTo("id"))
                 .body("expectedType", equalTo("UUID"));
+    }
+
+    @Test
+    void shouldReturnDevicesByBrand() {
+        String nestDevice1 = """
+                {
+                  "name": "Thermostat",
+                  "brand": "Nest"
+                }
+                """;
+
+        String nestDevice2 = """
+                {
+                  "name": "Camera",
+                  "brand": "Nest"
+                }
+                """;
+
+        String appleDevice = """
+                {
+                  "name": "iPhone",
+                  "brand": "Apple"
+                }
+                """;
+
+        given().contentType(ContentType.JSON).body(nestDevice1).when().post("/api/v1/devices").then().statusCode(201);
+        given().contentType(ContentType.JSON).body(nestDevice2).when().post("/api/v1/devices").then().statusCode(201);
+        given().contentType(ContentType.JSON).body(appleDevice).when().post("/api/v1/devices").then().statusCode(201);
+
+        given()
+                .noContentType()
+                .when()
+                .get("/api/v1/devices?brand={brand}", "Nest")
+                .then()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("size()", equalTo(2))
+                .body("brand", everyItem(equalTo("Nest")))
+                .body("name", containsInAnyOrder("Thermostat", "Camera"))
+                .body("id", everyItem(notNullValue()))
+                .body("creationTime", everyItem(notNullValue()));
+    }
+
+    @Test
+    void shouldGetDevicesByStatusCreated() {
+        String device1 = """
+                {
+                  "name": "Thermostat",
+                  "brand": "Nest"
+                }
+                """;
+
+        String device2 = """
+                {
+                  "name": "iPhone",
+                  "brand": "Apple"
+                }
+                """;
+
+        given().contentType(ContentType.JSON).body(device1).when().post("/api/v1/devices").then().statusCode(201);
+        given().contentType(ContentType.JSON).body(device2).when().post("/api/v1/devices").then().statusCode(201);
+
+        given()
+                .noContentType()
+                .when()
+            .get("/api/v1/devices?status={status}", "AVAILABLE")
+                .then()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("size()", equalTo(2))
+                .body("state", everyItem(equalTo("AVAILABLE")))
+                .body("id", everyItem(notNullValue()))
+                .body("creationTime", everyItem(notNullValue()));
+    }
+
+    @Test
+    void shouldGetEmptyListWhenThereAreNoDevicesForStatusIsInUse() {
+        given()
+                .noContentType()
+                .when()
+                .get("/api/v1/devices?status={status}", "IN_USE")
+                .then()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("size()", equalTo(0));
     }
 }

@@ -1,6 +1,6 @@
 package com.devices.persistence;
 
-import com.devices.model.DeviceState;
+import com.devices.model.DeviceStatus;
 import jakarta.persistence.*;
 import org.springframework.data.domain.Persistable;
 
@@ -23,7 +23,7 @@ public class Device implements Persistable<UUID> {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false, length = 20)
-    private DeviceState state;
+    private DeviceStatus state;
 
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false, columnDefinition = "timestamptz")
     private OffsetDateTime createdAt;
@@ -34,7 +34,7 @@ public class Device implements Persistable<UUID> {
     }
 
     // Constructor used by application code (createdAt is DB-generated)
-    public Device(UUID id, String name, String brand, DeviceState state) {
+    public Device(UUID id, String name, String brand, DeviceStatus state) {
         this.id = id;
         this.name = name;
         this.brand = brand;
@@ -50,7 +50,7 @@ public class Device implements Persistable<UUID> {
 
     public String getBrand() { return brand; }
 
-    public DeviceState getState() { return state; }
+    public DeviceStatus getState() { return state; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
 

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS devices (
     brand       VARCHAR(50) NOT NULL,
     state       VARCHAR(20) NOT NULL,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT chk_state CHECK (state IN ('AVAILABLE', 'IN_USE', 'MAINTENANCE'))
+    CONSTRAINT chk_state CHECK (state IN ('AVAILABLE', 'IN_USE', 'INACTIVE'))
 );
 
 -- Indexes

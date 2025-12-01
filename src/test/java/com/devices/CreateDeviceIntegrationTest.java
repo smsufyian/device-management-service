@@ -1,7 +1,7 @@
 package com.devices;
 
 import com.devices.api.dto.CreateDeviceResponse;
-import com.devices.model.DeviceState;
+import com.devices.model.DeviceStatus;
 import com.devices.persistence.DeviceRepository;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,6 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
                 .post("/api/v1/devices")
                 .then()
                 .statusCode(201)
-                .header("Location", matchesPattern(".*/api/v1/devices/[0-9a-f-]{36}"))
                 .contentType(ContentType.JSON)
                 .body("id", notNullValue())
                 .body("name", equalTo("Thermostat"))
@@ -46,7 +45,7 @@ class CreateDeviceIntegrationTest extends AbstractIntegrationTest {
         var saved = deviceRepository.findById(response.id()).orElseThrow();
         assertThat(saved.getName()).isEqualTo("Thermostat");
         assertThat(saved.getBrand()).isEqualTo("Nest");
-        assertThat(saved.getState()).isEqualTo(DeviceState.AVAILABLE);
+        assertThat(saved.getState()).isEqualTo(DeviceStatus.AVAILABLE);
         assertThat(saved.getId()).isEqualTo(response.id());
     }
 

@@ -1,7 +1,7 @@
 package com.devices.model;
 
-public enum DeviceState {
+public enum DeviceStatus {
     AVAILABLE,
     IN_USE,
-    MAINTENANCE
+    INACTIVE
 }

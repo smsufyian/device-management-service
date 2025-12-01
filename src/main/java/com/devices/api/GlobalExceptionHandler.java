@@ -2,16 +2,20 @@ package com.devices.api;
 
 import com.devices.service.exception.DeviceNotFoundException;
 import com.devices.service.exception.InvalidDeviceStateException;
+import com.devices.service.exception.DeviceInUseException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.Map;
 import java.util.stream.Collectors;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -26,6 +30,7 @@ public class GlobalExceptionHandler {
     private static final String NOT_FOUND_PROBLEM_TYPE = "https://api.example.com/errors/device-not-found";
     private static final String INVALID_STATE_PROBLEM_TYPE = "https://api.example.com/errors/invalid-device-state";
     private static final String INVALID_PARAMETER_PROBLEM_TYPE = "https://api.example.com/errors/invalid-parameter";
+    private static final String DEVICE_IN_USE_PROBLEM_TYPE = "https://api.example.com/errors/device-in-use";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationExceptions(MethodArgumentNotValidException ex,
@@ -79,6 +84,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(problem);
     }
 
+    @ExceptionHandler(DeviceInUseException.class)
+    public ResponseEntity<ProblemDetail> handleDeviceInUse(DeviceInUseException ex,
+                                                           HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Device In Use");
+        problem.setType(URI.create(DEVICE_IN_USE_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ProblemDetail> handleTypeMismatch(MethodArgumentTypeMismatchException ex,
                                                             HttpServletRequest request) {
@@ -93,6 +108,50 @@ public class GlobalExceptionHandler {
         problem.setProperty("parameter", parameterName);
         problem.setProperty("expectedType", requiredType);
         problem.setProperty("rejectedValue", ex.getValue());
+        return ResponseEntity.badRequest().body(problem);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ProblemDetail> handleConstraintViolation(ConstraintViolationException ex,
+                                                                   HttpServletRequest request) {
+        // Take first violation to build a concise RFC7807 problem
+        ConstraintViolation<?> violation = ex.getConstraintViolations().stream().findFirst().orElse(null);
+        String parameterName = "parameter";
+        Object rejectedValue = null;
+        if (violation != null) {
+            String path = violation.getPropertyPath() != null ? violation.getPropertyPath().toString() : "";
+            // Extract last node name (e.g., getByBrand.brand -> brand)
+            int idx = path.lastIndexOf('.');
+            parameterName = idx >= 0 ? path.substring(idx + 1) : path;
+            rejectedValue = violation.getInvalidValue();
+        }
+
+        String expectedType = "String"; // for @RequestParam validations in this API
+        String detail = ("Invalid value for parameter '%s'. Expected type: %s.").formatted(parameterName, expectedType);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        problem.setTitle("Invalid Parameter");
+        problem.setType(URI.create(INVALID_PARAMETER_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("parameter", parameterName);
+        problem.setProperty("expectedType", expectedType);
+        problem.setProperty("rejectedValue", rejectedValue);
+        return ResponseEntity.badRequest().body(problem);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ProblemDetail> handleMissingRequestParameter(MissingServletRequestParameterException ex,
+                                                                       HttpServletRequest request) {
+        String parameterName = ex.getParameterName();
+        String expectedType = ex.getParameterType() != null ? ex.getParameterType() : "String";
+        String detail = ("Missing required parameter '%s'. Expected type: %s.").formatted(parameterName, expectedType);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        problem.setTitle("Invalid Parameter");
+        problem.setType(URI.create(INVALID_PARAMETER_PROBLEM_TYPE));
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("parameter", parameterName);
+        problem.setProperty("expectedType", expectedType);
         return ResponseEntity.badRequest().body(problem);
     }
 }

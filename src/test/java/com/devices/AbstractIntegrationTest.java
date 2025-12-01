@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.ArrayList;
-
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -21,13 +19,12 @@ public abstract class AbstractIntegrationTest {
     protected int port;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    protected JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void setUpRestAssured() {
         RestAssured.baseURI = "http://localhost";
-        RestAssured.port = port;  // your random port
-        RestAssured.filters(new ArrayList<>()); // remove logging filters
+        RestAssured.port = port;
     }
 
     @AfterEach
