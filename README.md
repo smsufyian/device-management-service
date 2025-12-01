@@ -77,7 +77,7 @@ Notes:
 
 ## ⚡ Quick Start
 ```bash
-cd devices-api
+cd device-management-service
 # Start a local PostgreSQL (optional, if you don’t have one)
 docker compose up -d
 
