@@ -86,14 +86,14 @@ docker compose up -d
 ```
    
 After startup:
-- Swagger UI dashboard: http://localhost:8080/swagger-ui.html
+- Swagger UI dashboard: http://localhost:8080/swagger-ui/index.html?urls.primaryName=public#/
 - OpenAPI JSON: http://localhost:8080/v3/api-docs
 
 ## 📚 API documentation setup
 
 We use Springdoc OpenAPI. URLs are configured in [`src/main/resources/application.properties`](src/main/resources/application.properties):
 
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html?urls.primaryName=public#/`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 
 Additional grouping and metadata are defined in [`src/main/java/com/devices/config/OpenApiConfig.java`](src/main/java/com/devices/config/OpenApiConfig.java). Use `@Operation`, `@Parameter`, and `@Schema` on controllers/DTOs to enrich docs. Keep descriptions concise and focused on request/response shapes and error codes.
